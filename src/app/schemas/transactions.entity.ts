@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Wallet } from './wallet.entity';
+import { Coins } from './coins.entity';
 
 @Entity()
 export class Transactions {
@@ -12,11 +12,11 @@ export class Transactions {
   @Column('timestamptz')
   dateTime: Date;
 
-  @ManyToOne(() => Wallet, (wallet) => wallet.adress)
-  sendTo: Wallet;
+  @ManyToOne(() => Coins, (wallet) => wallet.id)
+  sendTo: Coins;
 
-  @ManyToOne(() => Wallet, (wallet) => wallet.adress)
-  receiveFrom: Wallet;
+  @ManyToOne(() => Coins, (wallet) => wallet.id)
+  receiveFrom: Coins;
 
   @Column('double precision')
   currentCotation: number;

@@ -8,7 +8,7 @@
     "password": "postgres",
     "database": "walletdb",
     "entities": [
-      "dist/schemas/*.entity.js"
+      "dist/app/schemas/*.entity.js"
     ],
     "migrations": [
       "dist/db/migrations/*.migration.js"
