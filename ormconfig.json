@@ -1,0 +1,19 @@
+[
+  {
+    "name": "default",
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "postgres",
+    "password": "postgres",
+    "database": "walletdb",
+    "entities": [
+      "dist/app/schemas/*.entity.js"
+    ],
+    "cli": {
+      "entitiesDir": "dist/app/schemas",
+      "migrationsDir": "dist/db/migrations"
+    },
+    "synchronize": true
+  }
+]
