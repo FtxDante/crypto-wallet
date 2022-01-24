@@ -9,17 +9,14 @@ import {
 @Entity()
 export class Coins {
   @PrimaryGeneratedColumn('uuid')
-  adress: string;
+  id: string;
 
   @Column()
-  name: string;
+  coin: string;
 
   @Column()
-  cpf: string;
+  fullname: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column('double precision')
+  amont: number;
 }
