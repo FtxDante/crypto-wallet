@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -19,10 +19,10 @@ export class Wallet {
   @Column({ unique: true })
   cpf: string;
 
-  @Column('timestamptz')
+  @Column({ type: 'date' })
   birthdate: Date;
 
-  @ManyToOne(() => Coins, (coins) => coins.owner)
+  @OneToMany(() => Coins, (coins) => coins.owner)
   coins: Coins[];
 
   @CreateDateColumn()

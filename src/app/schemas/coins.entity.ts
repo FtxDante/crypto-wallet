@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Transactions } from './transactions.entity';
 import { Wallet } from './wallet.entity';
 
@@ -16,7 +22,7 @@ export class Coins {
   @Column('double precision')
   amont: number;
 
-  @OneToMany(() => Wallet, (wallet) => wallet.coins)
+  @ManyToOne(() => Wallet, (wallet) => wallet.coins)
   owner: Wallet;
 
   @OneToMany(() => Transactions, (transactions) => transactions.id)
