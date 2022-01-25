@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -11,7 +12,7 @@ import { Coins } from './coins.entity';
 @Entity()
 export class Wallet {
   @PrimaryGeneratedColumn('uuid')
-  adress: string;
+  address: string;
 
   @Column()
   name: string;
@@ -22,6 +23,7 @@ export class Wallet {
   @Column({ type: 'date' })
   birthdate: Date;
 
+  @Exclude()
   @OneToMany(() => Coins, (coins) => coins.owner)
   coins: Coins[];
 
