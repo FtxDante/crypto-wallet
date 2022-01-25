@@ -5,26 +5,23 @@ import { Coins } from '../schemas/coins.entity';
 
 @Injectable()
 export class CoinsService {
-  private coin;
-  private amont;
-  private fullname;
-
   constructor(
     @InjectRepository(Coins)
     private coinsRepository: Repository<Coins>,
-  ) {
-    this.coin = 'BRL';
-    this.amont = 0;
-    this.fullname = 'Real';
-  }
+  ) {}
 
-  async generateDefaultCoin() {
+  async generateDefaultCoin(owner: string) {
     const coin = this.coinsRepository.create({
-      coin: this.coin,
-      amont: this.amont,
-      fullname: this.fullname,
+      coin: 'BRL',
+      amont: 0,
+      fullname: 'Real',
+      ownerId: owner,
     });
     await this.coinsRepository.save(coin);
     return coin;
+  }
+
+  async findAllCoins(searchParams) {
+    return await this.coinsRepository.find(searchParams);
   }
 }

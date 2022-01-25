@@ -23,7 +23,6 @@ export class Wallet {
   @Column({ type: 'date' })
   birthdate: Date;
 
-  @Exclude()
   @OneToMany(() => Coins, (coins) => coins.owner)
   coins: Coins[];
 

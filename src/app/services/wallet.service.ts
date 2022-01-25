@@ -21,8 +21,8 @@ export class WalletService {
   async create(payload: CreateWalletDto) {
     try {
       const wallet = this.walletRepository.create(payload);
-      wallet.coins = [await this.coinsService.generateDefaultCoin()];
       await this.walletRepository.save(wallet);
+      await this.coinsService.generateDefaultCoin(wallet.address);
       return wallet;
     } catch (err: any) {
       throw new BadRequestException(err.message);
@@ -40,7 +40,6 @@ export class WalletService {
   async findOne(address) {
     const result = await this.walletRepository.findOne({
       where: { address },
-      relations: ['coins'],
     });
     if (!result) {
       throw new NotFoundException(`Address: ${address}`);

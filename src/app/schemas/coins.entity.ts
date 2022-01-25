@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -22,7 +23,11 @@ export class Coins {
   @Column('double precision')
   amont: number;
 
+  @Column()
+  ownerId: string;
+
   @ManyToOne(() => Wallet, (wallet) => wallet.coins)
+  @JoinColumn({ name: 'ownerId' })
   owner: Wallet;
 
   @OneToMany(() => Transactions, (transactions) => transactions.id)
