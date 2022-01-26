@@ -7,7 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from '../schemas/wallet.entity';
 import { CreateWalletDto } from '../utils/dtos/wallet/createwallet.dto';
+import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { WalletPayload } from '../utils/interfaces/walletPayload';
+import { ApiCoinsService } from './api-axios.service';
 import { CoinsService } from './coins.service';
 
 @Injectable()
@@ -16,9 +18,10 @@ export class WalletService {
     @InjectRepository(Wallet)
     private readonly walletRepository: Repository<Wallet>,
     private readonly coinsService: CoinsService,
+    private readonly apiService: ApiCoinsService,
   ) {}
 
-  async create(payload: CreateWalletDto) {
+  public async create(payload: CreateWalletDto) {
     try {
       const wallet = this.walletRepository.create(payload);
       await this.walletRepository.save(wallet);
@@ -29,21 +32,30 @@ export class WalletService {
     }
   }
 
-  async findAll(searchParams: WalletPayload) {
+  public async findAll(searchParams: WalletPayload) {
     return await this.walletRepository.find({
-      relations: ['coins'],
       where: searchParams,
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(address) {
-    const result = await this.walletRepository.findOne({
-      where: { address },
-    });
-    if (!result) {
-      throw new NotFoundException(`Address: ${address}`);
+  public async findOne(address) {
+    try {
+      const result = await this.walletRepository.findOne({
+        where: { address },
+      });
+      if (!result) {
+        throw new NotFoundException(`Address: ${address}`);
+      }
+      return result;
+    } catch (err: any) {
+      throw err;
     }
-    return result;
+  }
+
+  public async handlerOfFunds(address: string, payloads: WalletFunds[]) {
+    return payloads.forEach((payload) => {
+      return this.coinsService.updateValues(address, payload);
+    });
   }
 }

@@ -12,6 +12,7 @@ import { Coins } from './coins.entity';
 @Entity()
 export class Wallet {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude()
   address: string;
 
   @Column()
@@ -23,7 +24,7 @@ export class Wallet {
   @Column({ type: 'date' })
   birthdate: Date;
 
-  @OneToMany(() => Coins, (coins) => coins.owner)
+  @OneToMany(() => Coins, (coins) => coins.owner, { eager: true })
   coins: Coins[];
 
   @CreateDateColumn()

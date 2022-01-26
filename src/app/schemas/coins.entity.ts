@@ -1,5 +1,7 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
+  Double,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -20,10 +22,11 @@ export class Coins {
   @Column()
   fullname: string;
 
-  @Column('double precision')
+  @Column({ type: 'double precision', default: 0 })
   amont: number;
 
   @Column()
+  @Exclude()
   ownerId: string;
 
   @ManyToOne(() => Wallet, (wallet) => wallet.coins)
