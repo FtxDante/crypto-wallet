@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsUUID, Length, Matches, MaxDate, IsOptional } from 'class-validator';
-
+import { Length, Matches, MaxDate, IsOptional } from 'class-validator';
 export class CreateWalletDto {
   @Length(7, 50)
   readonly name: string;
@@ -11,8 +10,4 @@ export class CreateWalletDto {
   @MaxDate(new Date())
   @Type(() => Date)
   readonly birthdate: Date;
-
-  @IsOptional()
-  @IsUUID()
-  public coinsId?: string;
 }
