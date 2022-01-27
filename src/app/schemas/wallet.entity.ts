@@ -12,7 +12,6 @@ import { Coins } from './coins.entity';
 @Entity()
 export class Wallet {
   @PrimaryGeneratedColumn('uuid')
-  @Exclude()
   address: string;
 
   @Column()

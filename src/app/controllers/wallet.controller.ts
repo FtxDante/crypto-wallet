@@ -22,20 +22,24 @@ export class WalletController {
     const created = this.walletService.create(payload);
     return created;
   }
-
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   async getAll(@Query() queries) {
     const allWallets = this.walletService.findAll(queries);
     return allWallets;
   }
-
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('/:address')
   async getOneWallet(@Param('address') adress) {
     return await this.walletService.findOne(adress);
   }
-
+  @UseInterceptors(ClassSerializerInterceptor)
   @Put('/:address')
   async updateFunds(@Param('address') address, @Body() payload: WalletFunds[]) {
-    return await this.walletService.handlerOfFunds(address, payload);
+    try {
+      return await this.walletService.handlerOfFunds(address, payload);
+    } catch (error) {
+      return error;
+    }
   }
 }

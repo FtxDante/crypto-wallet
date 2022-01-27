@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Coins } from '../schemas/coins.entity';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { ApiCoinsService } from './api-axios.service';
+import { TransactionsService } from './transactions.service';
 
 @Injectable()
 export class CoinsService {
@@ -11,6 +12,7 @@ export class CoinsService {
     @InjectRepository(Coins)
     private coinsRepository: Repository<Coins>,
     private apiService: ApiCoinsService,
+    private transactionsServices: TransactionsService,
   ) {}
 
   public async generateDefaultCoin(owner: string) {
@@ -62,15 +64,25 @@ export class CoinsService {
       coinQuote = await this.createCoin(quoteTo, ownerId);
     }
 
-    if (coinCurrent.amont + value < 0) {
-      throw new BadRequestException('No money enough');
-    }
     if (value < 0) {
-      coinCurrent.amont += value;
+      const withdraw = (value * -1) / cotation;
+      if (coinCurrent.amont < withdraw) {
+        throw new BadRequestException('No money enough');
+      }
+      coinCurrent.amont -= withdraw;
     } else {
-      coinQuote.amont += value * cotation;
+      const cotationValueDeposit = value * cotation;
+      coinQuote.amont += cotationValueDeposit;
     }
+    await this.coinsRepository.save(coinCurrent);
     await this.coinsRepository.save(coinQuote);
-    return await this.coinsRepository.save(coinCurrent);
+    return await this.transactionsServices.createTransaction({
+      value,
+      dateTime: new Date(),
+      coinId: coinCurrent.id,
+      sendTo: ownerId,
+      receiveFrom: ownerId,
+      currentCotation: cotation,
+    });
   }
 }

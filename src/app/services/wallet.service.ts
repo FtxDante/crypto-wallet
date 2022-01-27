@@ -54,8 +54,15 @@ export class WalletService {
   }
 
   public async handlerOfFunds(address: string, payloads: WalletFunds[]) {
-    return payloads.forEach((payload) => {
-      return this.coinsService.updateValues(address, payload);
-    });
+    try {
+      await this.findOne(address);
+      return Promise.all(
+        payloads.map((payload) => {
+          return this.coinsService.updateValues(address, payload);
+        }),
+      );
+    } catch (error) {
+      return error;
+    }
   }
 }

@@ -33,6 +33,8 @@ export class Coins {
   @JoinColumn({ name: 'ownerId' })
   owner: Wallet;
 
-  @OneToMany(() => Transactions, (transactions) => transactions.id)
+  @OneToMany(() => Transactions, (transactions) => transactions.coin, {
+    eager: true,
+  })
   transactions: Transactions[];
 }
