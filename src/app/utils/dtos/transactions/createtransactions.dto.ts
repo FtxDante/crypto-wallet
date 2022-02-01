@@ -1,8 +1,6 @@
 export class CreateTransactionDto {
+  readonly receiverAddress: string;
+  readonly quoteTo: string;
+  readonly currentCoin: string;
   readonly value: number;
-  readonly dateTime: Date;
-  readonly sendTo: string;
-  readonly coindId: string;
-  readonly receiveFrom: string;
-  readonly currentCotation: number;
 }

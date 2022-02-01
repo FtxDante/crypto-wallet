@@ -1,35 +1,32 @@
 import { HttpService } from '@nestjs/axios';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { firstValueFrom } from 'rxjs';
 import { CoinsInfo, CoinsInfoHandled } from '../utils/interfaces/coinsInfos';
 
 @Injectable()
 export class ApiCoinsService {
-  private detailsInfoCoins: CoinsInfo[];
-  private availableCoins: object[];
   constructor(private httpService: HttpService) {}
 
   async getCoinInfo(
     currentCoin: string,
-    quoteTo = 'BRL',
+    quoteTo: string,
   ): Promise<CoinsInfoHandled> {
     try {
-      this.detailsInfoCoins = [];
-      const result = this.httpService.get(
-        `https://economia.awesomeapi.com.br/last/${currentCoin}-${quoteTo}`,
+      const { data } = await firstValueFrom(
+        this.httpService.get(
+          `https://economia.awesomeapi.com.br/json/last/${currentCoin}-${quoteTo}`,
+        ),
       );
-      await result.forEach((item) => this.detailsInfoCoins.push(item.data));
-      return this.handlerCoinInfo(Object.values(this.detailsInfoCoins[0])[0]);
-    } catch (err: any) {
-      throw new BadRequestException(err.message);
+
+      return this.coinInfoHandler(data[currentCoin + quoteTo]);
+    } catch (error) {
+      throw new NotFoundException(
+        `Inexistent or unsupported transaction ${currentCoin}-${quoteTo}`,
+      );
     }
   }
 
-  private async handlerCoinInfo({
-    code,
-    codein,
-    name,
-    ask,
-  }: CoinsInfo): Promise<CoinsInfoHandled> {
+  private async coinInfoHandler({ code, codein, name, ask }: CoinsInfo) {
     const [fullname, fullname2] = name.split('/');
     return {
       code,

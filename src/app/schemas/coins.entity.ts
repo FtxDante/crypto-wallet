@@ -1,7 +1,6 @@
 import { Exclude } from 'class-transformer';
 import {
   Column,
-  Double,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -14,6 +13,7 @@ import { Wallet } from './wallet.entity';
 @Entity()
 export class Coins {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude()
   id: string;
 
   @Column()
