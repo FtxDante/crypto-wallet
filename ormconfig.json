@@ -10,6 +10,9 @@
     "entities": [
       "dist/app/schemas/*.entity.js"
     ],
+    "migrations": [
+      "dist/db/migrations/*.migration.js"
+    ],
     "cli": {
       "entitiesDir": "dist/app/schemas",
       "migrationsDir": "dist/db/migrations"
