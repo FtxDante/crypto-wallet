@@ -1,8 +1,8 @@
 export interface transaction {
   value: number;
-  dateTime: Date;
+  dateTime?: Date;
   sendTo: string;
-  coindId: string;
+  coinId: string;
   receiveFrom: string;
   currentCotation: number;
 }

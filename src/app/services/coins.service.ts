@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { Coins } from '../schemas/coins.entity';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { ApiCoinsService } from './api-axios.service';
@@ -85,7 +85,7 @@ export class CoinsService {
     return { coinCurrent, coinQuote };
   }
 
-  async findACoin(where: object) {
+  async findCoin(where: DeepPartial<Coins>) {
     return await this.coinsRepository.findOne(where);
   }
 }

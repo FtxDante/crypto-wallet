@@ -12,6 +12,7 @@ import { WalletPayload } from '../utils/interfaces/walletPayload';
 import { CoinsService } from './coins.service';
 import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
 import { TransactionsService } from './transactions.service';
+import { ApiCoinsService } from './api-axios.service';
 
 @Injectable()
 export class WalletService {
@@ -20,6 +21,7 @@ export class WalletService {
     private walletRepository: Repository<Wallet>,
     private coinsService: CoinsService,
     private transactionsService: TransactionsService,
+    private apiService: ApiCoinsService,
   ) {}
 
   public async create(payload: CreateWalletDto) {
@@ -67,8 +69,17 @@ export class WalletService {
   }
 
   public async transfer(fromAddress: string, payload: CreateTransactionDto) {
-    await this.findOne(fromAddress);
-    await this.findOne(payload.receiverAddress);
-    return await this.transactionsService.createTransaction(payload);
+    const fromWallet = await this.findOne(fromAddress);
+    const receiveWallet = await this.findOne(payload.receiverAddress);
+
+    const coinToTranfers = await this.coinsService.findCoin({
+      ownerId: fromWallet.address,
+      coin: payload.currentCoin,
+    });
+
+    const coinToReceive = await this.coinsService.findCoin({
+      ownerId: receiveWallet.address,
+      coin: payload.quoteTo,
+    });
   }
 }
