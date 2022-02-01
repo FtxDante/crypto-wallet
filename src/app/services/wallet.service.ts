@@ -9,23 +9,23 @@ import { Wallet } from '../schemas/wallet.entity';
 import { CreateWalletDto } from '../utils/dtos/wallet/createwallet.dto';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { WalletPayload } from '../utils/interfaces/walletPayload';
-import { ApiCoinsService } from './api-axios.service';
 import { CoinsService } from './coins.service';
+import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
+import { TransactionsService } from './transactions.service';
 
 @Injectable()
 export class WalletService {
   constructor(
     @InjectRepository(Wallet)
-    private readonly walletRepository: Repository<Wallet>,
-    private readonly coinsService: CoinsService,
-    private readonly apiService: ApiCoinsService,
+    private walletRepository: Repository<Wallet>,
+    private coinsService: CoinsService,
+    private transactionsService: TransactionsService,
   ) {}
 
   public async create(payload: CreateWalletDto) {
     try {
       const wallet = this.walletRepository.create(payload);
       await this.walletRepository.save(wallet);
-      await this.coinsService.generateDefaultCoin(wallet.address);
       return wallet;
     } catch (err: any) {
       throw new BadRequestException(err.message);
@@ -35,11 +35,11 @@ export class WalletService {
   public async findAll(searchParams: WalletPayload) {
     return await this.walletRepository.find({
       where: searchParams,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: 'ASC' },
     });
   }
 
-  public async findOne(address) {
+  public async findOne(address: string) {
     try {
       const result = await this.walletRepository.findOne({
         where: { address },
@@ -53,9 +53,22 @@ export class WalletService {
     }
   }
 
-  public async handlerOfFunds(address: string, payloads: WalletFunds[]) {
-    return payloads.forEach((payload) => {
-      return this.coinsService.updateValues(address, payload);
-    });
+  public async depositOrWithDrawal(address: string, payloads: WalletFunds[]) {
+    try {
+      await this.findOne(address);
+      return Promise.all(
+        payloads.map(async (payload) => {
+          return await this.coinsService.updateValues(address, payload);
+        }),
+      );
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async transfer(fromAddress: string, payload: CreateTransactionDto) {
+    await this.findOne(fromAddress);
+    await this.findOne(payload.receiverAddress);
+    return await this.transactionsService.createTransaction(payload);
   }
 }

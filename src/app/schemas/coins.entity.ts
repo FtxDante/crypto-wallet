@@ -1,7 +1,6 @@
 import { Exclude } from 'class-transformer';
 import {
   Column,
-  Double,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -14,6 +13,7 @@ import { Wallet } from './wallet.entity';
 @Entity()
 export class Coins {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude()
   id: string;
 
   @Column()
@@ -33,6 +33,8 @@ export class Coins {
   @JoinColumn({ name: 'ownerId' })
   owner: Wallet;
 
-  @OneToMany(() => Transactions, (transactions) => transactions.id)
+  @OneToMany(() => Transactions, (transactions) => transactions.coin, {
+    eager: true,
+  })
   transactions: Transactions[];
 }

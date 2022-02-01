@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -12,7 +11,6 @@ import { Coins } from './coins.entity';
 @Entity()
 export class Wallet {
   @PrimaryGeneratedColumn('uuid')
-  @Exclude()
   address: string;
 
   @Column()
