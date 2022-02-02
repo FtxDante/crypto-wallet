@@ -58,7 +58,7 @@ export class WalletService {
       await this.findOne(address);
       return Promise.all(
         payloads.map(async (payload) => {
-          return await this.coinsService.updateValues(address, payload);
+          return await this.coinsService.addOrRemoveFunds(address, payload);
         }),
       );
     } catch (error) {

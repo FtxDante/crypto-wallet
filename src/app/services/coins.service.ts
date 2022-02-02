@@ -15,46 +15,50 @@ export class CoinsService {
     private transactionsServices: TransactionsService,
   ) {}
 
-  public async createCoin(coinName: string, ownerId: string) {
-    const { code, fullname } = await this.apiService.getCoinInfo(
-      coinName,
-      'BRL',
+  public async createCoin(
+    currentCoin: string,
+    quoteTo: string,
+    ownerId: string,
+  ) {
+    const { codein, fullname } = await this.apiService.getCoinInfo(
+      currentCoin,
+      quoteTo,
     );
     const coin = this.coinsRepository.create({
-      coin: code,
+      coin: codein,
       fullname,
       ownerId,
     });
     return await this.coinsRepository.save(coin);
   }
 
-  public async updateValues(ownerId: string, payload: WalletFunds) {
+  public async addOrRemoveFunds(ownerId: string, payload: WalletFunds) {
     const { cotation } = await this.apiService.getCoinInfo(
       payload.currentCoin,
       payload.quoteTo,
     );
 
-    const { coinCurrent, coinQuote } = await this.createACoinIfNotExists(
-      ownerId,
+    const coinQuote = await this.createACoinIfNotExists(
       payload.currentCoin,
       payload.quoteTo,
+      ownerId,
     );
 
     if (payload.value < 0) {
       const withdrawal = (payload.value * -1) / cotation;
-      if (coinCurrent.amont < withdrawal) {
+      if (coinQuote.amont < withdrawal) {
         throw new BadRequestException('You not have money enough');
       }
-      coinCurrent.amont -= withdrawal;
+      coinQuote.amont -= withdrawal;
     } else {
       const cotationValueDeposit = payload.value * cotation;
       coinQuote.amont += cotationValueDeposit;
     }
-    await this.coinsRepository.save(coinCurrent);
+
     await this.coinsRepository.save(coinQuote);
     return await this.transactionsServices.createTransaction({
       value: payload.value,
-      coinId: coinCurrent.id,
+      coinId: coinQuote.id,
       sendTo: ownerId,
       receiveFrom: ownerId,
       currentCotation: cotation,
@@ -62,27 +66,18 @@ export class CoinsService {
   }
 
   async createACoinIfNotExists(
-    ownerId: string,
     currentCoin: string,
     quoteTo: string,
+    ownerId: string,
   ) {
-    let coinCurrent = await this.coinsRepository.findOne({
-      where: { ownerId, coin: currentCoin },
-    });
-
     let coinQuote = await this.coinsRepository.findOne({
       where: { ownerId, coin: quoteTo },
     });
 
-    if (!coinCurrent) {
-      coinCurrent = await this.createCoin(currentCoin, ownerId);
-    }
-
     if (!coinQuote) {
-      coinQuote = await this.createCoin(quoteTo, ownerId);
+      coinQuote = await this.createCoin(currentCoin, quoteTo, ownerId);
     }
-
-    return { coinCurrent, coinQuote };
+    return coinQuote;
   }
 
   async findACoin(where: object) {
