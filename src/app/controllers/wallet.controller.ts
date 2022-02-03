@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseArrayPipe,
@@ -51,5 +52,15 @@ export class WalletController {
     await this.walletService.findWalletOrFail(address);
     await this.walletService.findWalletOrFail(payload.receiverAddress);
     return this.walletService.transferFunds(address, payload);
+  }
+
+  @Get('/:address/transaction')
+  async findCoinsFromWallet(@Param('address', ParseUUIDPipe) address: string) {
+    return this.walletService.findCoins(address);
+  }
+
+  @Delete('/:address')
+  async deleteWallet(@Param('address', ParseUUIDPipe) address: string) {
+    return this.walletService.deleteWallet(address);
   }
 }

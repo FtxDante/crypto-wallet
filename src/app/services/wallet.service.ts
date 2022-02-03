@@ -97,10 +97,25 @@ export class WalletService {
     await this.coinsService.saveACoin(cointToReceive);
     return await this.transactionService.createTransaction(
       payload.value * cotation,
-      cointToReceive.id,
-      fromAddress,
+      coinToSend.id,
       payload.receiverAddress,
+      fromAddress,
       cotation,
     );
+  }
+
+  async findCoins(where: any) {
+    const wallet = await this.findWalletOrFail(where);
+    const transformedData = wallet.coins.map((coin) => {
+      return {
+        coin: coin.coin,
+        transactions: coin.transactions,
+      };
+    });
+    return transformedData;
+  }
+
+  async deleteWallet(address: string) {
+    return this.walletRepository.softDelete(address);
   }
 }

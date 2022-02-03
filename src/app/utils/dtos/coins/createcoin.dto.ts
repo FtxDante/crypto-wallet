@@ -1,4 +1,10 @@
-import { IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 export class CreateCoinDto {
   @IsString()
@@ -14,5 +20,6 @@ export class CreateCoinDto {
 
   @IsString()
   @IsOptional()
+  @IsUUID()
   readonly transactionsId?: string;
 }
