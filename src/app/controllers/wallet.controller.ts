@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseArrayPipe,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { WalletService } from '../services/wallet.service';
 import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
 import { CreateWalletDto } from '../utils/dtos/wallet/createwallet.dto';
@@ -7,6 +17,7 @@ import { WalletFunds } from '../utils/interfaces/walletFounds';
 @Controller('wallet')
 export class WalletController {
   constructor(private walletService: WalletService) {}
+
   @Post()
   async createWallet(@Body() payload: CreateWalletDto) {
     const created = this.walletService.create(payload);
@@ -20,25 +31,25 @@ export class WalletController {
   }
 
   @Get('/:address')
-  async getOneWallet(@Param('address') address: string) {
-    return await this.walletService.findOneOrFail(address);
+  async getOneWallet(@Param('address', ParseUUIDPipe) address: string) {
+    return await this.walletService.findWalletOrFail(address);
   }
 
   @Put('/:address')
   async updateFunds(
-    @Param('address') address: string,
-    @Body() payload: WalletFunds[],
+    @Param('address', ParseUUIDPipe) address: string,
+    @Body(new ParseArrayPipe({ items: WalletFunds })) payload: WalletFunds[],
   ) {
-    return await this.walletService.depositOrWithDrawal(address, payload);
+    return await this.walletService.depositOrWithdrawal(address, payload);
   }
 
   @Post('/:address/transaction')
-  async tranferToWallet(
-    @Param('address') address: string,
+  async transferToWallet(
+    @Param('address', ParseUUIDPipe) address: string,
     @Body() payload: CreateTransactionDto,
   ) {
-    await this.walletService.findOneOrFail(address);
-    await this.walletService.findOneOrFail(payload.receiverAddress);
-    return this.walletService.transfer(address, payload);
+    await this.walletService.findWalletOrFail(address);
+    await this.walletService.findWalletOrFail(payload.receiverAddress);
+    return this.walletService.transferFunds(address, payload);
   }
 }

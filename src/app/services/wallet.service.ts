@@ -21,6 +21,7 @@ export class WalletService {
     private walletRepository: Repository<Wallet>,
     private coinsService: CoinsService,
     private apiService: ApiCoinsService,
+    private transactionService: TransactionsService,
   ) {}
 
   async create(payload: CreateWalletDto) {
@@ -40,7 +41,7 @@ export class WalletService {
     });
   }
 
-  async findOneOrFail(address: string) {
+  async findWalletOrFail(address: string) {
     const result = await this.walletRepository.findOne({
       where: { address },
     });
@@ -50,16 +51,16 @@ export class WalletService {
     return result;
   }
 
-  async depositOrWithDrawal(address: string, payloads: WalletFunds[]) {
-    await this.findOneOrFail(address);
+  async depositOrWithdrawal(address: string, payloads: WalletFunds[]) {
+    await this.findWalletOrFail(address);
     return Promise.all(
       payloads.map(async (payload) => {
-        return await this.coinsService.addOrRemoveFunds(address, payload);
+        return await this.coinsService.updateFunds(address, payload);
       }),
     );
   }
 
-  async transfer(fromAddress: string, payload: CreateTransactionDto) {
+  async transferFunds(fromAddress: string, payload: CreateTransactionDto) {
     const { cotation } = await this.apiService.getCoinInfo(
       payload.currentCoin,
       payload.quoteTo,
@@ -70,21 +71,36 @@ export class WalletService {
       ownerId: fromAddress,
     });
 
-    const cointToReceive = await this.coinsService.findACoin({
-      coin: payload.quoteTo,
-      ownerId: payload.receiverAddress,
-    });
+    if (!coinToSend) {
+      throw new NotFoundException(`Coin: ${payload.currentCoin}`);
+    }
 
-    const withdrawal = payload.value / cotation;
+    if (payload.value < 0) {
+      throw new BadRequestException('Value must to be greater than 0');
+    }
+
+    const cointToReceive = await this.coinsService.createACoinIfNotExists(
+      payload.currentCoin,
+      payload.quoteTo,
+      payload.receiverAddress,
+    );
+
+    const withdrawal = payload.value * cotation;
 
     if (coinToSend.amont < withdrawal) {
       throw new BadRequestException('You not have money enough');
     }
-    console.log(withdrawal);
     coinToSend.amont -= payload.value;
     cointToReceive.amont += payload.value * cotation;
 
     await this.coinsService.saveACoin(coinToSend);
-    return await this.coinsService.saveACoin(cointToReceive);
+    await this.coinsService.saveACoin(cointToReceive);
+    return await this.transactionService.createTransaction(
+      payload.value * cotation,
+      cointToReceive.id,
+      fromAddress,
+      payload.receiverAddress,
+      cotation,
+    );
   }
 }

@@ -11,13 +11,13 @@ export class TransactionsService {
     private connection: Connection,
   ) {}
 
-  async createTransaction({
-    value,
-    coinId,
-    sendTo,
-    receiveFrom,
-    currentCotation,
-  }: any) {
+  async createTransaction(
+    value: number,
+    coinId: string,
+    sendTo: string,
+    receiveFrom: string,
+    currentCotation: number,
+  ) {
     const created = this.transactionsRepository.create({
       value,
       dateTime: new Date(),

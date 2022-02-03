@@ -33,7 +33,7 @@ export class CoinsService {
     return await this.saveACoin(coin);
   }
 
-  public async addOrRemoveFunds(ownerId: string, payload: WalletFunds) {
+  public async updateFunds(ownerId: string, payload: WalletFunds) {
     const { cotation } = await this.apiService.getCoinInfo(
       payload.currentCoin,
       payload.quoteTo,
@@ -57,13 +57,13 @@ export class CoinsService {
     }
 
     await this.saveACoin(coinQuote);
-    return await this.transactionsServices.createTransaction({
-      value: payload.value,
-      coinId: coinQuote.id,
-      sendTo: ownerId,
-      receiveFrom: ownerId,
-      currentCotation: cotation,
-    });
+    return await this.transactionsServices.createTransaction(
+      payload.value * cotation,
+      coinQuote.id,
+      ownerId,
+      ownerId,
+      cotation,
+    );
   }
 
   async createACoinIfNotExists(
@@ -82,10 +82,10 @@ export class CoinsService {
   }
 
   async findACoin(where: FindACoin) {
-    return await this.coinsRepository.findOne(where);
+    return this.coinsRepository.findOne(where);
   }
 
   async saveACoin(coin: Coins) {
-    return await this.coinsRepository.save(coin);
+    return this.coinsRepository.save(coin);
   }
 }

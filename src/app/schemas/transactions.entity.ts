@@ -12,6 +12,7 @@ import { Wallet } from './wallet.entity';
 @Entity()
 export class Transactions {
   @PrimaryGeneratedColumn('uuid')
+  @Exclude()
   id: string;
 
   @Column('double precision')
