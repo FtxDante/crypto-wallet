@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coins } from '../schemas/coins.entity';
+import { FindACoin } from '../utils/interfaces/findACoin';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { ApiCoinsService } from './api-axios.service';
 import { TransactionsService } from './transactions.service';
@@ -29,7 +30,7 @@ export class CoinsService {
       fullname,
       ownerId,
     });
-    return await this.coinsRepository.save(coin);
+    return await this.saveACoin(coin);
   }
 
   public async addOrRemoveFunds(ownerId: string, payload: WalletFunds) {
@@ -55,7 +56,7 @@ export class CoinsService {
       coinQuote.amont += cotationValueDeposit;
     }
 
-    await this.coinsRepository.save(coinQuote);
+    await this.saveACoin(coinQuote);
     return await this.transactionsServices.createTransaction({
       value: payload.value,
       coinId: coinQuote.id,
@@ -80,7 +81,11 @@ export class CoinsService {
     return coinQuote;
   }
 
-  async findACoin(where: object) {
+  async findACoin(where: FindACoin) {
     return await this.coinsRepository.findOne(where);
+  }
+
+  async saveACoin(coin: Coins) {
+    return await this.coinsRepository.save(coin);
   }
 }

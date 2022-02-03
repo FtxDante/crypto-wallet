@@ -21,7 +21,7 @@ export class WalletController {
 
   @Get('/:address')
   async getOneWallet(@Param('address') address: string) {
-    return await this.walletService.findOne(address);
+    return await this.walletService.findOneOrFail(address);
   }
 
   @Put('/:address')
@@ -37,6 +37,8 @@ export class WalletController {
     @Param('address') address: string,
     @Body() payload: CreateTransactionDto,
   ) {
+    await this.walletService.findOneOrFail(address);
+    await this.walletService.findOneOrFail(payload.receiverAddress);
     return this.walletService.transfer(address, payload);
   }
 }

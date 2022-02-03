@@ -12,6 +12,7 @@ import { WalletPayload } from '../utils/interfaces/walletPayload';
 import { CoinsService } from './coins.service';
 import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
 import { TransactionsService } from './transactions.service';
+import { ApiCoinsService } from './api-axios.service';
 
 @Injectable()
 export class WalletService {
@@ -19,10 +20,10 @@ export class WalletService {
     @InjectRepository(Wallet)
     private walletRepository: Repository<Wallet>,
     private coinsService: CoinsService,
-    private transactionsService: TransactionsService,
+    private apiService: ApiCoinsService,
   ) {}
 
-  public async create(payload: CreateWalletDto) {
+  async create(payload: CreateWalletDto) {
     try {
       const wallet = this.walletRepository.create(payload);
       await this.walletRepository.save(wallet);
@@ -32,43 +33,58 @@ export class WalletService {
     }
   }
 
-  public async findAll(searchParams: WalletPayload) {
+  async findAll(searchParams: WalletPayload) {
     return await this.walletRepository.find({
       where: searchParams,
       order: { createdAt: 'ASC' },
     });
   }
 
-  public async findOne(address: string) {
-    try {
-      const result = await this.walletRepository.findOne({
-        where: { address },
-      });
-      if (!result) {
-        throw new NotFoundException(`Address: ${address}`);
-      }
-      return result;
-    } catch (err: any) {
-      throw err;
+  async findOneOrFail(address: string) {
+    const result = await this.walletRepository.findOne({
+      where: { address },
+    });
+    if (!result) {
+      throw new NotFoundException(`Address: ${address}`);
     }
+    return result;
   }
 
-  public async depositOrWithDrawal(address: string, payloads: WalletFunds[]) {
-    try {
-      await this.findOne(address);
-      return Promise.all(
-        payloads.map(async (payload) => {
-          return await this.coinsService.addOrRemoveFunds(address, payload);
-        }),
-      );
-    } catch (error) {
-      return error;
-    }
+  async depositOrWithDrawal(address: string, payloads: WalletFunds[]) {
+    await this.findOneOrFail(address);
+    return Promise.all(
+      payloads.map(async (payload) => {
+        return await this.coinsService.addOrRemoveFunds(address, payload);
+      }),
+    );
   }
 
-  public async transfer(fromAddress: string, payload: CreateTransactionDto) {
-    await this.findOne(fromAddress);
-    await this.findOne(payload.receiverAddress);
-    return await this.transactionsService.createTransaction(payload);
+  async transfer(fromAddress: string, payload: CreateTransactionDto) {
+    const { cotation } = await this.apiService.getCoinInfo(
+      payload.currentCoin,
+      payload.quoteTo,
+    );
+
+    const coinToSend = await this.coinsService.findACoin({
+      coin: payload.currentCoin,
+      ownerId: fromAddress,
+    });
+
+    const cointToReceive = await this.coinsService.findACoin({
+      coin: payload.quoteTo,
+      ownerId: payload.receiverAddress,
+    });
+
+    const withdrawal = payload.value / cotation;
+
+    if (coinToSend.amont < withdrawal) {
+      throw new BadRequestException('You not have money enough');
+    }
+    console.log(withdrawal);
+    coinToSend.amont -= payload.value;
+    cointToReceive.amont += payload.value * cotation;
+
+    await this.coinsService.saveACoin(coinToSend);
+    return await this.coinsService.saveACoin(cointToReceive);
   }
 }
