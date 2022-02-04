@@ -8,13 +8,13 @@
     "password": "postgres",
     "database": "walletdb",
     "entities": [
-      "dist/app/schemas/*.entity.js"
+      "dist/schemas/*.entity.js"
     ],
     "migrations": [
       "dist/db/migrations/*.migration.js"
     ],
     "cli": {
-      "entitiesDir": "dist/app/schemas",
+      "entitiesDir": "dist/schemas",
       "migrationsDir": "dist/db/migrations"
     },
     "synchronize": true

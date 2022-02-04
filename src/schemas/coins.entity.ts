@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -37,4 +38,8 @@ export class Coins {
     eager: true,
   })
   transactions: Transactions[];
+
+  @DeleteDateColumn()
+  @Exclude()
+  deletedAt: Date;
 }

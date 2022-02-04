@@ -16,6 +16,5 @@ export interface CoinsInfoHandled {
   code: string;
   codein: string;
   fullname: string;
-  fullname2: string;
   cotation: number;
 }

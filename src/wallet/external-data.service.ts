@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { CoinsInfo, CoinsInfoHandled } from '../utils/interfaces/coinsInfos';
 
 @Injectable()
-export class ApiCoinsService {
+export class externalDataService {
   constructor(private httpService: HttpService) {}
 
   async getCoinInfo(
@@ -27,12 +27,11 @@ export class ApiCoinsService {
   }
 
   private async coinInfoHandler({ code, codein, name, ask }: CoinsInfo) {
-    const [fullname, fullname2] = name.split('/');
+    const [, fullname] = name.split('/');
     return {
       code,
       codein,
       fullname,
-      fullname2,
       cotation: ask,
     };
   }

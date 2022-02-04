@@ -1,6 +1,8 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -20,9 +22,11 @@ export class Wallet {
   cpf: string;
 
   @Column({ type: 'date' })
-  birthdate: Date;
+  birthday: Date;
 
-  @OneToMany(() => Coins, (coins) => coins.owner, { eager: true })
+  @OneToMany(() => Coins, (coins) => coins.owner, {
+    eager: true,
+  })
   coins: Coins[];
 
   @CreateDateColumn()
@@ -30,4 +34,8 @@ export class Wallet {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  @Exclude()
+  deletedAt: Date;
 }
