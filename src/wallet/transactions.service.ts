@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Transactions } from '../schemas/transactions.entity';
 
 @Injectable()
@@ -8,7 +8,6 @@ export class TransactionsService {
   constructor(
     @InjectRepository(Transactions)
     private transactionsRepository: Repository<Transactions>,
-    private connection: Connection,
   ) {}
 
   async createTransaction(

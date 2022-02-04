@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Coins } from '../schemas/coins.entity';
 import { FindACoin } from '../utils/interfaces/findACoin';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
-import { ApiCoinsService } from './api-axios.service';
+import { externalDataService } from './external-data.service';
 import { TransactionsService } from './transactions.service';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CoinsService {
   constructor(
     @InjectRepository(Coins)
     private coinsRepository: Repository<Coins>,
-    private apiService: ApiCoinsService,
+    private apiService: externalDataService,
     private transactionsServices: TransactionsService,
   ) {}
 
@@ -39,7 +39,7 @@ export class CoinsService {
       payload.quoteTo,
     );
 
-    const cointToReceive = await this.createACoinIfNotExists(
+    const coinToReceive = await this.createACoinIfNotExists(
       payload.currentCoin,
       payload.quoteTo,
       ownerId,
@@ -47,19 +47,19 @@ export class CoinsService {
 
     if (payload.value < 0) {
       const withdrawal = (payload.value * -1) / cotation;
-      if (cointToReceive.amont < withdrawal) {
+      if (coinToReceive.amont < withdrawal) {
         throw new BadRequestException('You not have money enough');
       }
-      cointToReceive.amont -= withdrawal;
+      coinToReceive.amont -= withdrawal;
     } else {
       const cotationValueDeposit = payload.value * cotation;
-      cointToReceive.amont += cotationValueDeposit;
+      coinToReceive.amont += cotationValueDeposit;
     }
 
-    await this.saveACoin(cointToReceive);
+    await this.saveACoin(coinToReceive);
     return await this.transactionsServices.createTransaction(
       payload.value * cotation,
-      cointToReceive.id,
+      coinToReceive.id,
       ownerId,
       ownerId,
       cotation,

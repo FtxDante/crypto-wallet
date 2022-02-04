@@ -9,5 +9,5 @@ export class CreateWalletDto {
 
   @MaxDate(new Date())
   @Type(() => Date)
-  readonly birthdate: Date;
+  readonly birthday: Date;
 }

@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { CoinsInfo, CoinsInfoHandled } from '../utils/interfaces/coinsInfos';
 
 @Injectable()
-export class ApiCoinsService {
+export class externalDataService {
   constructor(private httpService: HttpService) {}
 
   async getCoinInfo(

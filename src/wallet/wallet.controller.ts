@@ -11,9 +11,9 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { WalletService } from '../services/wallet.service';
-import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
-import { CreateWalletDto } from '../utils/dtos/wallet/createwallet.dto';
+import { WalletService } from './wallet.service';
+import { CreateTransactionDto } from './dtos/transactions/create-transactions.dto';
+import { CreateWalletDto } from './dtos/wallet/createwallet.dto';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 
 @Controller('wallet')

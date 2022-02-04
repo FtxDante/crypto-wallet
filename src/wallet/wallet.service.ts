@@ -7,13 +7,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from '../schemas/wallet.entity';
-import { CreateWalletDto } from '../utils/dtos/wallet/createwallet.dto';
+import { CreateWalletDto } from './dtos/wallet/createwallet.dto';
 import { WalletFunds } from '../utils/interfaces/walletFounds';
 import { WalletPayload } from '../utils/interfaces/walletPayload';
 import { CoinsService } from './coins.service';
-import { CreateTransactionDto } from '../utils/dtos/transactions/createtransactions.dto';
+import { CreateTransactionDto } from './dtos/transactions/create-transactions.dto';
 import { TransactionsService } from './transactions.service';
-import { ApiCoinsService } from './api-axios.service';
+import { externalDataService } from './external-data.service';
 
 @Injectable()
 export class WalletService {
@@ -21,7 +21,7 @@ export class WalletService {
     @InjectRepository(Wallet)
     private walletRepository: Repository<Wallet>,
     private coinsService: CoinsService,
-    private apiService: ApiCoinsService,
+    private apiService: externalDataService,
     private transactionService: TransactionsService,
   ) {}
 
@@ -31,6 +31,9 @@ export class WalletService {
       await this.walletRepository.save(wallet);
       return wallet;
     } catch (err: any) {
+      if (err.name == 'QueryFailedError') {
+        err.message = 'CPF already registered';
+      }
       throw new BadRequestException(err.message);
     }
   }
@@ -80,7 +83,7 @@ export class WalletService {
       throw new BadRequestException('Value must to be greater than 0');
     }
 
-    const cointToReceive = await this.coinsService.createACoinIfNotExists(
+    const coinToReceive = await this.coinsService.createACoinIfNotExists(
       payload.currentCoin,
       payload.quoteTo,
       payload.receiverAddress,
@@ -92,10 +95,10 @@ export class WalletService {
       throw new BadRequestException('You not have money enough');
     }
     coinToSend.amont -= payload.value;
-    cointToReceive.amont += payload.value * cotation;
+    coinToReceive.amont += payload.value * cotation;
 
     await this.coinsService.saveACoin(coinToSend);
-    await this.coinsService.saveACoin(cointToReceive);
+    await this.coinsService.saveACoin(coinToReceive);
     return await this.transactionService.createTransaction(
       payload.value * cotation,
       coinToSend.id,

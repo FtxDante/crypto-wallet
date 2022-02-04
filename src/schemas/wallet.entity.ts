@@ -22,7 +22,7 @@ export class Wallet {
   cpf: string;
 
   @Column({ type: 'date' })
-  birthdate: Date;
+  birthday: Date;
 
   @OneToMany(() => Coins, (coins) => coins.owner, {
     eager: true,
