@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   ParseArrayPipe,
   ParseUUIDPipe,
@@ -60,6 +61,7 @@ export class WalletController {
   }
 
   @Delete('/:address')
+  @HttpCode(204)
   async deleteWallet(@Param('address', ParseUUIDPipe) address: string) {
     return this.walletService.deleteWallet(address);
   }

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -116,6 +117,11 @@ export class WalletService {
   }
 
   async deleteWallet(address: string) {
-    return this.walletRepository.softDelete(address);
+    const { coins } = await this.findWalletOrFail(address);
+    for (const coin of coins) {
+      if (coin.amont > 0)
+        throw new UnauthorizedException('wallet still have funds');
+    }
+    this.walletRepository.softDelete(address);
   }
 }
