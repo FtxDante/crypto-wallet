@@ -6,7 +6,7 @@ import { Transactions } from '../schemas/transactions.entity';
 @Injectable()
 export class TransactionsService {
   constructor(
-    @InjectRepository(Transactions)
+    @InjectRepository(Transactions, 'j')
     private transactionsRepository: Repository<Transactions>,
   ) {}
 

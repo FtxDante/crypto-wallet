@@ -18,7 +18,7 @@ import { externalDataService } from './external-data.service';
 @Injectable()
 export class WalletService {
   constructor(
-    @InjectRepository(Wallet)
+    @InjectRepository(Wallet, 'j')
     private walletRepository: Repository<Wallet>,
     private coinsService: CoinsService,
     private apiService: externalDataService,

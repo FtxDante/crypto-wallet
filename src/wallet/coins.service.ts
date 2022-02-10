@@ -10,7 +10,7 @@ import { TransactionsService } from './transactions.service';
 @Injectable()
 export class CoinsService {
   constructor(
-    @InjectRepository(Coins)
+    @InjectRepository(Coins, 'j')
     private coinsRepository: Repository<Coins>,
     private apiService: externalDataService,
     private transactionsServices: TransactionsService,

@@ -28,7 +28,7 @@ export class WalletController {
 
   @Get()
   async getAll(@Query() queries: any) {
-    const allWallets = this.walletService.findAll(queries);
+    const allWallets = await this.walletService.findAll(queries);
     return allWallets;
   }
 
